@@ -19,74 +19,70 @@ public class UserDaoHibernateImpl implements UserDao {
     }
 
     @Override
-    public void createUsersTable() {
+    public void dropUsersTable() {
+        Transaction transaction = null;
         try (Session session = sessionFactory.openSession()) {
-            Transaction transaction = session.beginTransaction();
-            try {
-                session.createSQLQuery("CREATE TABLE IF NOT EXISTS users (" +
-                        "id BIGINT PRIMARY KEY AUTO_INCREMENT, " +
-                        "name VARCHAR(50), " +
-                        "lastName VARCHAR(50), " +
-                        "age TINYINT)").executeUpdate();
-                transaction.commit();
-            } catch (Exception e) {
-                if (transaction != null) {
-                    transaction.rollback(); // Откат транзакции в случае ошибки
-                }
-                logger.log(Level.SEVERE, "Ошибка при создании таблицы users", e);
+            transaction = session.beginTransaction();
+            session.createSQLQuery("DROP TABLE IF EXISTS users").executeUpdate();
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback(); // Откат транзакции в случае ошибки
             }
+            logger.log(Level.SEVERE, "Ошибка при удалении таблицы users", e);
         }
     }
 
     @Override
-    public void dropUsersTable() {
+    public void createUsersTable() {
+        Transaction transaction = null;
         try (Session session = sessionFactory.openSession()) {
-            Transaction transaction = session.beginTransaction();
-            try {
-                session.createSQLQuery("DROP TABLE IF EXISTS users").executeUpdate();
-                transaction.commit();
-            } catch (Exception e) {
-                if (transaction != null) {
-                    transaction.rollback(); // Откат транзакции в случае ошибки
-                }
-                logger.log(Level.SEVERE, "Ошибка при удалении таблицы users", e);
+            transaction = session.beginTransaction();
+            session.createSQLQuery("CREATE TABLE IF NOT EXISTS users (" +
+                                      "id BIGINT PRIMARY KEY AUTO_INCREMENT, " +
+                                      "name VARCHAR(50) NOT NULL, " +
+                                      "lastName VARCHAR(50) NOT NULL, " +
+                                      "age TINYINT NOT NULL)").executeUpdate();
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback(); // Откат транзакции в случае ошибки
             }
+            logger.log(Level.SEVERE, "Ошибка при создании таблицы users", e);
         }
     }
 
     @Override
     public void saveUser(String name, String lastName, byte age) {
+        Transaction transaction = null;
         try (Session session = sessionFactory.openSession()) {
-            Transaction transaction = session.beginTransaction();
-            try {
-                User user = new User(name, lastName, age);
-                session.save(user);
-                transaction.commit();
-            } catch (Exception e) {
-                if (transaction != null) {
-                    transaction.rollback(); // Откат транзакции в случае ошибки
-                }
-                logger.log(Level.SEVERE, "Ошибка при сохранении пользователя", e);
+            transaction = session.beginTransaction();
+            User user = new User(name, lastName, age);
+            session.save(user);
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback(); // Откат транзакции в случае ошибки
             }
+            logger.log(Level.SEVERE, "Ошибка при сохранении пользователя", e);
         }
     }
 
     @Override
     public void removeUserById(long id) {
+        Transaction transaction = null;
         try (Session session = sessionFactory.openSession()) {
-            Transaction transaction = session.beginTransaction();
-            try {
-                User user = session.get(User.class, id);
-                if (user != null) {
-                    session.delete(user);
-                }
-                transaction.commit();
-            } catch (Exception e) {
-                if (transaction != null) {
-                    transaction.rollback(); // Откат транзакции в случае ошибки
-                }
-                logger.log(Level.SEVERE, "Ошибка при удалении пользователя по id", e);
+            transaction = session.beginTransaction();
+            User user = session.get(User.class, id);
+            if (user != null) {
+                session.delete(user);
             }
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback(); // Откат транзакции в случае ошибки
+            }
+            logger.log(Level.SEVERE, "Ошибка при удалении пользователя по id", e);
         }
     }
 
@@ -102,17 +98,16 @@ public class UserDaoHibernateImpl implements UserDao {
 
     @Override
     public void cleanUsersTable() {
+        Transaction transaction = null;
         try (Session session = sessionFactory.openSession()) {
-            Transaction transaction = session.beginTransaction();
-            try {
-                session.createQuery("DELETE FROM User").executeUpdate();
-                transaction.commit();
-            } catch (Exception e) {
-                if (transaction != null) {
-                    transaction.rollback(); // Откат транзакции в случае ошибки
-                }
-                logger.log(Level.SEVERE, "Ошибка при очистке таблицы users", e);
+            transaction = session.beginTransaction();
+            session.createQuery("DELETE FROM User").executeUpdate();
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback(); // Откат транзакции в случае ошибки
             }
+            logger.log(Level.SEVERE, "Ошибка при очистке таблицы users", e);
         }
     }
 }
